@@ -6,11 +6,14 @@ const markdownPrismJs = require("./src/markdownSyntaxHighlightOptions");
 
 module.exports = {
   initArguments: { Prism },
-  configFunction: function(eleventyConfig, options = {}) {
-    options = Object.assign({ alwaysWrapLineHighlights: false }, options);
+  configFunction: function (eleventyConfig, options = {}) {
+    options = Object.assign(
+      { alwaysWrapLineHighlights: false, showLineNumbers: false },
+      options
+    );
 
     // TODO hbs?
-    if( hasTemplateFormat(options.templateFormats, "liquid") ) {
+    if (hasTemplateFormat(options.templateFormats, "liquid")) {
       eleventyConfig.addLiquidTag("highlight", (liquidEngine) => {
         // {% highlight js 0 2 %}
         let highlight = new LiquidHighlightTag(liquidEngine);
@@ -18,18 +21,26 @@ module.exports = {
       });
     }
 
-    if( hasTemplateFormat(options.templateFormats, "njk") ) {
-      eleventyConfig.addPairedNunjucksShortcode("highlight", (content, args) => {
-        // {% highlight "js 0 2-3" %}
-        let [language, ...highlightNumbers] = args.split(" ");
-        return HighlightPairedShortcode(content, language, highlightNumbers.join(" "), options);
-      });
+    if (hasTemplateFormat(options.templateFormats, "njk")) {
+      eleventyConfig.addPairedNunjucksShortcode(
+        "highlight",
+        (content, args) => {
+          // {% highlight "js 0 2-3" %}
+          let [language, ...highlightNumbers] = args.split(" ");
+          return HighlightPairedShortcode(
+            content,
+            language,
+            highlightNumbers.join(" "),
+            options
+          );
+        }
+      );
     }
 
-    if( hasTemplateFormat(options.templateFormats, "md") ) {
+    if (hasTemplateFormat(options.templateFormats, "md")) {
       eleventyConfig.addMarkdownHighlighter(markdownPrismJs(options));
     }
-  }
+  },
 };
 
 module.exports.pairedShortcode = HighlightPairedShortcode;
